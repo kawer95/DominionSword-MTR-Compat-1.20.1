@@ -1,0 +1,9 @@
+{
+  "entity.dominionsword_mtr_compat.train_proxy": "MTR 列车",
+  "message.dominionsword_mtr_compat.player_driver": "真实玩家正在驾驶，单位不能接管列车",
+  "message.dominionsword_mtr_compat.invalid_station": "目标不是当前班次路径上的后续站台",
+  "message.dominionsword_mtr_compat.snapshot_missing": "已点中 MTR 列车，但服务器尚未生成该列车的控制代理；请查看日志中的 MTR bridge 提示",
+  "message.dominionsword_mtr_compat.select_unit_first": "已点中 MTR 列车，请先选择至少一个可控单位",
+  "screen.dominionsword_mtr_compat.stations": "选择目标站",
+  "screen.dominionsword_mtr_compat.no_stations": "当前路径没有可选的后续停站"
+}

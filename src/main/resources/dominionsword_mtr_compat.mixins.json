@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.arxyt.dominionsword.mtr.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "dominionsword_mtr_compat.refmap.json",
+  "mixins": ["MtrInitRidingStateMixin", "NameColorDataAccessor", "PacketUpdateVehicleRidingEntitiesMixin", "VehicleExtraDataDoorMixin", "VehicleSchemaAccessor", "VehicleMethodInvoker", "VehicleSimulationMixin", "SidingSimulationMixin"],
+  "client": ["ModelPropertiesPartMixin", "RenderVehicleHelperMixin", "RenderVehiclesMixin", "VehicleRidingMovementMixin"],
+  "injectors": { "defaultRequire": 1 }
+}

@@ -1,0 +1,8 @@
+.gradle/
+build/
+run/
+libs/*.jar
+.engineering/
+.idea/
+*.iml
+local.properties

@@ -1,0 +1,87 @@
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'net.minecraftforge.gradle' version '6.0.54'
+    id 'org.spongepowered.mixin' version '0.7.+'
+}
+
+group = mod_group_id
+version = mod_version
+base { archivesName = mod_id }
+java { toolchain.languageVersion = JavaLanguageVersion.of(17) }
+
+minecraft {
+    mappings channel: mapping_channel, version: mapping_version
+    copyIdeResources = true
+    runs {
+        configureEach {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'info'
+            property 'mixin.env.remapRefMap', 'true'
+            mods { "${mod_id}" { source sourceSets.main } }
+        }
+        client {}
+        server { args '--nogui' }
+    }
+}
+
+repositories {
+    mavenCentral()
+    if (project.hasProperty('dominionsword_jar') && project.hasProperty('mtr_jar')) {
+        flatDir { dirs file(project.property('dominionsword_jar')).parentFile, file(project.property('mtr_jar')).parentFile }
+    }
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    if (!project.hasProperty('dominionsword_jar')) throw new GradleException('Missing -Pdominionsword_jar')
+    if (!project.hasProperty('mtr_jar')) throw new GradleException('Missing -Pmtr_jar')
+    compileOnly files(project.property('dominionsword_jar'))
+    compileOnly files(project.property('mtr_jar'))
+    // Production jars must be remapped for ForgeGradle's deobfuscated development runs.
+    runtimeOnly fg.deobf('local:dominionsword:1.19.0')
+    runtimeOnly fg.deobf('local:MTR-forge:4.0.5+1.20.1')
+}
+
+mixin { add sourceSets.main, 'dominionsword_mtr_compat.refmap.json' }
+
+tasks.named('processResources', ProcessResources).configure {
+    filteringCharset = 'UTF-8'
+    def props = [minecraft_version_range: minecraft_version_range, forge_version_range: forge_version_range,
+                 loader_version_range: loader_version_range, mod_id: mod_id, mod_name: mod_name,
+                 mod_license: mod_license, mod_version: mod_version, mod_authors: mod_authors,
+                 mod_description: mod_description]
+    inputs.properties props
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) { expand props + [project: project] }
+}
+
+tasks.named('jar', Jar).configure {
+    from('LICENSE')
+    from('RELEASE_NOTES.md')
+    manifest { attributes(['MixinConfigs': 'dominionsword_mtr_compat.mixins.json']) }
+    finalizedBy 'reobfJar'
+}
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+
+def localProperties = new Properties()
+def localPropertiesFile = file('local.properties')
+if (localPropertiesFile.exists()) localPropertiesFile.withInputStream { localProperties.load(it) }
+def localDeployDirectory = project.findProperty('deploy_directory') ?: localProperties.getProperty('deploy_directory')
+def localDeployPrefix = project.findProperty('deploy_prefix') ?: localProperties.getProperty('deploy_prefix')
+
+if (localDeployDirectory && localDeployPrefix) {
+    tasks.register('deployToGame', Copy) {
+        dependsOn tasks.named('reobfJar')
+        from tasks.named('jar').flatMap { it.archiveFile }
+        into file(localDeployDirectory)
+        rename { originalName -> "${localDeployPrefix}${originalName}" }
+        doFirst {
+            File target = file(localDeployDirectory)
+            if (!target.exists() && !target.mkdirs()) throw new GradleException("Cannot create deployment directory: ${target}")
+            target.listFiles()?.findAll { it.isFile() && it.name.startsWith(localDeployPrefix) && it.name.endsWith('.jar') }
+                    ?.each { oldJar -> delete oldJar }
+        }
+    }
+    tasks.named('build').configure { finalizedBy tasks.named('deployToGame') }
+}

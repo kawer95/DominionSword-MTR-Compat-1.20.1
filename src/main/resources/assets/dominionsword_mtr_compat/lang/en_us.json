@@ -1,0 +1,9 @@
+{
+  "entity.dominionsword_mtr_compat.train_proxy": "MTR Train",
+  "message.dominionsword_mtr_compat.player_driver": "A real player is driving; units cannot take control",
+  "message.dominionsword_mtr_compat.invalid_station": "The target is not a later platform on this service",
+  "message.dominionsword_mtr_compat.snapshot_missing": "The MTR train was clicked, but the server has no control proxy for it; check the log for MTR bridge diagnostics",
+  "message.dominionsword_mtr_compat.select_unit_first": "MTR train selected; select at least one controllable unit first",
+  "screen.dominionsword_mtr_compat.stations": "Select destination station",
+  "screen.dominionsword_mtr_compat.no_stations": "No later stops are available on the current path"
+}
